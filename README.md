@@ -1,6 +1,6 @@
 # @reef-defi/evm-provider.js
 
-`reef-provider.js` implements a web3 provider which can interact with the [Reef chain EVM](https://github.com/reef-defi/reef-chain).
+`evm-provider.js` implements a web3 provider which can interact with the [Reef chain EVM](https://github.com/reef-defi/reef-chain).
 
 ## Getting Started
 
@@ -12,7 +12,7 @@ yarn
 
 ## Documentation
 
-Most of the api of `reef-provider.js` is compatible with `ethers.js`. If you are not familiar with ethers.js, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/)
+Most of the api of `evm-provider.js` is compatible with `ethers.js`. If you are not familiar with ethers.js, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/)
 
 ### Provider
 
