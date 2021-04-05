@@ -28,7 +28,7 @@ import { Provider } from './Provider';
 import { SigningKey } from './SigningKey';
 import { dataToString, handleTxResponse, toBN } from './utils';
 
-const logger = new Logger('bodhi/0.0.1');
+const logger = new Logger('evm-provider/0.0.1');
 
 export class Signer extends Abstractsigner implements TypedDataSigner {
   readonly provider: Provider;
@@ -151,7 +151,7 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
     if (isConnented) return;
 
     const publicKey = decodeAddress(this._substrateAddress);
-    const data = 'acala evm:' + Buffer.from(publicKey).toString('hex');
+    const data = 'Reef evm:' + Buffer.from(publicKey).toString('hex');
     const signature = await this._signMessage(evmAddress, data);
     const extrinsic = this.provider.api.tx.evmAccounts.claimAccount(
       evmAddress,
@@ -241,7 +241,7 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
         tx.data,
         toBN(tx.value) || '0',
         toBN(tx.gasLimit),
-        0xffffffff
+        1000000
       );
     } else {
       extrinsic = this.provider.api.tx.evm.call(
@@ -249,7 +249,7 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
         tx.data,
         toBN(tx.value) || '0',
         toBN(tx.gasLimit),
-        0xffffffff
+        1000000
       );
     }
 
