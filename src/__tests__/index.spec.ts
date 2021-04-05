@@ -2,7 +2,7 @@ import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { blake2AsU8a, decodeAddress } from '@polkadot/util-crypto';
 import { Provider } from '..';
 
-describe('bodhi', () => {
+describe('evm-provider', () => {
   it('should export the Provider', () => {
     expect(Provider).toBeDefined();
   });

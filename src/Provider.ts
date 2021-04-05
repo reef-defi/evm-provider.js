@@ -34,7 +34,7 @@ import {
 import { encodeAddress } from '@polkadot/util-crypto';
 import { DataProvider } from './DataProvider';
 
-const logger = new Logger('bodhi-provider/0.0.1');
+const logger = new Logger('evm-provider/0.0.1');
 export class Provider implements AbstractProvider {
   readonly api: ApiPromise;
   readonly resolveApi: Promise<ApiPromise>;
