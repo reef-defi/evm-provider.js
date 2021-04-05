@@ -2955,9 +2955,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reef-defi/provider@workspace:.":
+"@reef-defi/evm-provider@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@reef-defi/provider@workspace:."
+  resolution: "@reef-defi/evm-provider@workspace:."
   dependencies:
     "@acala-network/api": ^0.7.2-4
     "@babel/core": ^7.12.9
