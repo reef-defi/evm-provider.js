@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { options } from '@acala-network/api';
+import { options } from '@reef-defi/api';
 import type {
   Block,
   BlockTag,
@@ -20,7 +20,7 @@ import { Deferrable } from '@ethersproject/properties';
 import Scanner from '@open-web3/scanner';
 import { ApiPromise } from '@polkadot/api';
 import { ApiOptions } from '@polkadot/api/types';
-import { EvmAccountInfo } from '@acala-network/types/interfaces';
+import { EvmAccountInfo } from '@reef-defi/types/interfaces';
 import { Option } from '@polkadot/types';
 import type { WsProvider } from '@polkadot/rpc-provider';
 import {

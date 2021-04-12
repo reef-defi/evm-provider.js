@@ -25,7 +25,7 @@ The Provider provides some api for interacting with nodes and is an instance of 
 apiOptions has the same parameters as when creating an instance of apiPromise for polkadot.js 
 
 ```javascript
-import { options } from "@acala-network/api";
+import { options } from "@reef-defi/api";
 import { Provider } from "@reef-defi/evm-provider";
 import { WsProvider } from "@polkadot/api";
 
