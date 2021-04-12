@@ -2836,6 +2836,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@reef-defi/api-derive@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@reef-defi/api-derive@npm:0.1.1"
+  dependencies:
+    "@babel/runtime": ^7.10.2
+    "@open-web3/orml-types": ^0.9.1
+    "@polkadot/api-derive": ^4.0.3
+    "@reef-defi/types": ^0.1.1
+  checksum: c9297b01bad40ba5806f5148d732ca907681fa2211c0637a70777486f586e66eafc7d09cca5dccbbb0ac0f79c1e094f37dcd08f00d1b9f216abc28948dbf1e1b
+  languageName: node
+  linkType: hard
+
 "@reef-defi/api@npm:^0.1.0":
   version: 0.1.0
   resolution: "@reef-defi/api@npm:0.1.0"
@@ -2861,6 +2873,7 @@ __metadata:
     "@open-web3/indexer": ^0.9.2-0
     "@open-web3/scanner": ^0.9.2-0
     "@reef-defi/api": ^0.1.0
+    "@reef-defi/api-derive": ^0.1.1
     "@types/chai": ^4.2.14
     "@types/jest": ^26.0.15
     "@types/validator": ^13.1.0
@@ -2879,6 +2892,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@reef-defi/type-definitions@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@reef-defi/type-definitions@npm:0.1.1"
+  dependencies:
+    "@open-web3/orml-type-definitions": ^0.9.1
+  checksum: 500d3ef7a74410a8ec26428fc62d7f353dbc5c7d331d6a509decdb37a920e6cbb0f14823a6cbc7566dfb45310e860ec769a9d10038ebc75143272640643cea87
+  languageName: node
+  linkType: hard
+
 "@reef-defi/types@npm:^0.1.0":
   version: 0.1.0
   resolution: "@reef-defi/types@npm:0.1.0"
@@ -2891,6 +2913,21 @@ __metadata:
     "@polkadot/types": ^4.0.3
     "@reef-defi/type-definitions": ^0.1.0
   checksum: 7a7d5c993f4ce918291c4d7a37738e15bde834799fed58db4df3d5999414466b05b59fed1bdb4bf0deca2b575c0ae8697d1dbd34de13e996750b598adae4491b
+  languageName: node
+  linkType: hard
+
+"@reef-defi/types@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@reef-defi/types@npm:0.1.1"
+  dependencies:
+    "@babel/runtime": ^7.10.2
+    "@open-web3/api-mobx": ^0.9.1
+    "@open-web3/orml-types": ^0.9.1
+    "@polkadot/api": ^4.0.3
+    "@polkadot/typegen": ^4.0.3
+    "@polkadot/types": ^4.0.3
+    "@reef-defi/type-definitions": ^0.1.1
+  checksum: 530590ae1c9f236f0e1178dabdf0d616711fa66a66bfd03af34ed73d7ebd49776bd344b774c18d05a375c5d3603b56b80f68da55d051dcc3783065d0f1992574
   languageName: node
   linkType: hard
 

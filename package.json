@@ -26,6 +26,7 @@
     "@open-web3/indexer": "^0.9.2-0",
     "@open-web3/scanner": "^0.9.2-0",
     "@reef-defi/api": "^0.1.0",
+    "@reef-defi/api-derive": "^0.1.1",
     "@types/chai": "^4.2.14",
     "blakejs": "^1.1.0",
     "ethers": "^5.0.21"
