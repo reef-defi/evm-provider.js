@@ -237,7 +237,7 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
                 gasPrice: BigNumber.from(0),
                 data: dataToString(tx.data),
                 value: BigNumber.from(tx.value || '0'),
-                chainId: 1024,
+                chainId: 13939,
                 wait: (confirmations?: number): Promise<TransactionReceipt> => {
                   return this.provider._resolveTransactionReceipt(
                     extrinsic.hash.toHex(),
