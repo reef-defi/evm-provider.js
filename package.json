@@ -1,14 +1,11 @@
 {
-  "name": "@acala-network/bodhi",
-  "version": "0.2.2-19",
-  "main": "index.js",
-  "repository": "git@github.com:AcalaNetwork/bodhi.js.git",
-  "author": "Acala Developers <hello@acala.network>",
+  "name": "@reef-defi/evm-provider",
+  "version": "0.1.0",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "repository": "git@github.com:reef-defi/evm-provider.js.git",
+  "author": "Reef Developers",
   "license": "Apache-2.0",
-  "resolutions": {
-    "@polkadot/types": "^4.0.3",
-    "@polkadot/api": "^4.0.3"
-  },
   "scripts": {
     "build": "polkadot-dev-build-ts",
     "build:release": "polkadot-ci-ghact-build",
@@ -19,11 +16,16 @@
     "test:one": "polkadot-dev-run-test",
     "test:watch": "polkadot-dev-run-test --watch"
   },
+  "resolutions": {
+    "@polkadot/types": "^4.2.1",
+    "@polkadot/api": "^4.2.1",
+    "@polkadot/api-derive": "^4.2.1"
+  },
   "dependencies": {
     "@acala-network/api": "^0.7.2-4",
     "@open-web3/dev-config": "^0.1.10",
-    "@open-web3/indexer": "^0.9.1",
-    "@open-web3/scanner": "^0.9.1",
+    "@open-web3/indexer": "^0.9.2-0",
+    "@open-web3/scanner": "^0.9.2-0",
     "@types/chai": "^4.2.14",
     "blakejs": "^1.1.0",
     "ethers": "^5.0.21"
