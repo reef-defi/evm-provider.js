@@ -25,5 +25,5 @@
     "node_modules",
     "build/**/*",
     "**/build/**/*"
-  ],
+  ]
 }

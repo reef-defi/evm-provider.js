@@ -85,7 +85,7 @@ export function handleTxResponse(
   });
 }
 
-export function toBN(bigNumberis: BigNumberish): BN {
+export function toBN(bigNumberis: BigNumberish = 0): BN {
   if (isU8a(bigNumberis)) {
     return u8aToBn(bigNumberis);
   }
@@ -94,7 +94,11 @@ export function toBN(bigNumberis: BigNumberish): BN {
   }
 
   if (BigNumber.isBigNumber(bigNumberis)) {
-    return hexToBn(bigNumberis.toHexString());
+    const hex = bigNumberis.toHexString();
+    if (hex[0] === '-') {
+      return new BN('-' + hex.substring(3), 16);
+    }
+    return new BN(hex.substring(2), 16);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
