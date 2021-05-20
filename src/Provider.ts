@@ -36,7 +36,7 @@ import type BN from 'bn.js';
 import { DataProvider } from './DataProvider';
 import { toBN } from './utils';
 
-const logger = new Logger('evm-provider/0.0.1');
+const logger = new Logger('evm-provider');
 export class Provider implements AbstractProvider {
   readonly api: ApiPromise;
   readonly resolveApi: Promise<ApiPromise>;
@@ -241,10 +241,16 @@ export class Provider implements AbstractProvider {
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<string> {
     const resolved = await this._resolveTransaction(transaction);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await (this.api.rpc as any).evm.call(resolved);
-
-    return result.toHex();
+    if (blockTag) {
+      const blockHash = await this._resolveBlockHash(blockTag);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (this.api.rpc as any).evm.call(resolved, blockHash);
+      return result.toHex();
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (this.api.rpc as any).evm.call(resolved);
+      return result.toHex();
+    }
   }
 
   /**
