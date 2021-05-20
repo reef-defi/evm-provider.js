@@ -28,7 +28,7 @@ import { Provider } from './Provider';
 import { SigningKey } from './SigningKey';
 import { dataToString, handleTxResponse, toBN } from './utils';
 
-const logger = new Logger('evm-provider/0.0.1');
+const logger = new Logger('evm-provider');
 
 export class Signer extends Abstractsigner implements TypedDataSigner {
   // @ts-ignore
