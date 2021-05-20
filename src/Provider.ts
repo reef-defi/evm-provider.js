@@ -508,9 +508,7 @@ export class Provider implements AbstractProvider {
   ): Promise<string> {
     await this.resolveApi;
 
-    if (!blockTag) {
-      return logger.throwError(`Blocktag cannot be undefined`);
-    }
+    if (!blockTag) return undefined;
 
     const resolvedBlockHash = await blockTag;
 
