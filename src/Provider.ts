@@ -288,14 +288,15 @@ export class Provider implements AbstractProvider {
       return logger.throwError('From cannot be undefined');
     }
 
+    // the minimum of 60 Reef tokens
     const extrinsic = !to
-      ? this.api.tx.evm.create(data, toBN(value), '0', 1_000_000)
-      : this.api.tx.evm.call(to, data, toBN(value), '0', 1_000_000);
+      ? this.api.tx.evm.create(data, toBN(value), '0', 60_000)
+      : this.api.tx.evm.call(to, data, toBN(value), '0', 60_000);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await (this.api.rpc as any).evm.estimateResources(
       resolved.from,
-      extrinsic.toHex()
+      extrinsic.toHex() // returns transaction bytecode?
     );
 
     return {
