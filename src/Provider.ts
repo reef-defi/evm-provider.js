@@ -248,7 +248,12 @@ export class Provider implements AbstractProvider {
       return result.toHex();
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = await (this.api.rpc as any).evm.call(resolved);
+      const result = await (this.api.rpc as any).evm.call({
+        to: resolved.to,
+        from: resolved.from,
+        data: resolved.data,
+        storageLimit: '0'
+      });
       return result.toHex();
     }
   }
