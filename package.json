@@ -46,5 +46,6 @@
     "@types/jest": "^26.0.15",
     "@types/validator": "^13.1.0",
     "ts-node": "^9.0.0"
-  }
+  },
+  "packageManager": "yarn@3.0.1"
 }
