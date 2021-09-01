@@ -19,7 +19,13 @@
   "resolutions": {
     "@polkadot/types": "^4.3.1",
     "@polkadot/api": "^4.3.1",
-    "@polkadot/api-derive": "^4.3.1"
+    "@polkadot/api-derive": "^4.3.1",
+    "@ethersproject/abstract-signer": "5.0.9",
+    "@ethersproject/abstract-provider": "5.0.4",
+    "@ethersproject/bignumber": "5.0.7",
+    "@ethersproject/bytes": "5.0.4",
+    "@ethersproject/logger": "5.0.5",
+    "@ethersproject/properties": "5.0.3"
   },
   "dependencies": {
     "@open-web3/dev-config": "^0.1.10",
@@ -31,7 +37,7 @@
     "@reef-defi/types": "^0.1.7",
     "@types/chai": "^4.2.14",
     "blakejs": "^1.1.0",
-    "ethers": "~5.0.21"
+    "ethers": "5.0.24"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
