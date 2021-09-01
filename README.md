@@ -2,15 +2,28 @@
 
 `evm-provider.js` implements a web3 provider which can interact with the [Reef chain EVM](https://github.com/reef-defi/reef-chain).
 
-## Getting Started
+It can also be used as a Substrate provider to query or to interact with the Reef chain using the same calls as in the [Polkadot.js](https://polkadot.js.org/docs/api).
 
-Install dependencies
 
+## Getting started
+
+To create a `Provider` instance, use the following code:
+
+```javascript
+import { options } from "@reef-defi/api";
+import { Provider } from "@reef-defi/evm-provider";
+import { WsProvider } from "@polkadot/api";
+
+const provider = new Provider(
+  options({
+    provider: new WsProvider("ws://localhost:9944")
+  })
+);
 ```
-yarn
-```
 
-## Documentation
+with this object you can interact with the Substrate chain.
+
+## EVM interaction
 
 Most of the api of `evm-provider.js` is compatible with `ethers.js`. If you are not familiar with ethers.js, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/).
 
@@ -24,17 +37,6 @@ The Provider provides some api for interacting with nodes and is an instance of 
 
 apiOptions has the same parameters as when creating an instance of apiPromise for polkadot.js 
 
-```javascript
-import { options } from "@reef-defi/api";
-import { Provider } from "@reef-defi/evm-provider";
-import { WsProvider } from "@polkadot/api";
-
-const provider = new Provider(
-  options({
-    provider: new WsProvider("ws://localhost:9944")
-  })
-);
-```
 
 ### Wallet
 
@@ -64,3 +66,6 @@ const wallet = new Wallet("0xaa397267eaee48b2262a973fdcab384a758f39a3ad8708025cf
 
 For examples see scripts in [hardhat-reef-examples repo](https://github.com/reef-defi/hardhat-reef-examples/blob/master/scripts/flipper/deploy.js).
 
+# Develop
+
+Install dependencies with `yarn`.
