@@ -4,6 +4,19 @@
 
 It can also be used as a Substrate provider to query or to interact with the Reef chain using the same calls as in the [Polkadot.js](https://polkadot.js.org/docs/api).
 
+## Installation
+
+Install dependencies with `yarn` [see issue](https://github.com/reef-defi/evm-provider.js/issues/5#issuecomment-912389541).
+
+### Yarn
+
+```bash
+yarn add @reef-defi/api
+yarn add @reef-defi/api-derive
+yarn add @reef-defi/types
+yarn add @reef-defi/type-definitions
+yarn add @reef-defi/evm-provider
+```
 
 ## Getting started
 
@@ -65,7 +78,3 @@ const wallet = new Wallet("0xaa397267eaee48b2262a973fdcab384a758f39a3ad8708025cf
 # Examples
 
 For examples see scripts in [hardhat-reef-examples repo](https://github.com/reef-defi/hardhat-reef-examples/blob/master/scripts/flipper/deploy.js).
-
-# Develop
-
-Install dependencies with `yarn`.
