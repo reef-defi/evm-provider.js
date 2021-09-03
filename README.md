@@ -6,6 +6,15 @@ If you only care about developing Solidity contracts on the Reef chain, `@reef-d
 
 If you need more control, then it can also be used as a Substrate provider to query or to interact with the Reef chain using the same calls as in the [Polkadot.js](https://polkadot.js.org/docs/api).
 
+## Installation
+
+Install dependencies with `yarn` [see issue](https://github.com/reef-defi/evm-provider.js/issues/5#issuecomment-912389541).
+
+### Yarn
+
+```bash
+yarn add @reef-defi/evm-provider
+```
 
 ## Getting started
 
@@ -82,7 +91,3 @@ wallet.claimDefaultAccount()
 ```
 
 before performing any EVM calls otherwise it may lead to `InsufficientBalance` errors.
-
-# Develop
-
-Install dependencies with `yarn`.
