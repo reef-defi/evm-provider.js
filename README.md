@@ -2,7 +2,9 @@
 
 `evm-provider.js` implements a web3 provider which can interact with the [Reef chain EVM](https://github.com/reef-defi/reef-chain).
 
-It can also be used as a Substrate provider to query or to interact with the Reef chain using the same calls as in the [Polkadot.js](https://polkadot.js.org/docs/api).
+If you only care about developing Solidity contracts on the Reef chain, `@reef-defi/evm-provider.js` is used in our [Hardhat Reef environment](https://github.com/reef-defi/hardhat-reef). The environment simplifies and abstracts all the low-level intricacies, so you can only focus on the Solidity part. See [hardhat-reef-examples repo](https://github.com/reef-defi/hardhat-reef-examples/blob/master/scripts/flipper/deploy.js) for more examples.
+
+If you need more control, then it can also be used as a Substrate provider to query or to interact with the Reef chain using the same calls as in the [Polkadot.js](https://polkadot.js.org/docs/api).
 
 
 ## Getting started
@@ -10,33 +12,66 @@ It can also be used as a Substrate provider to query or to interact with the Ree
 To create a `Provider` instance, use the following code:
 
 ```javascript
-import { options } from "@reef-defi/api";
-import { Provider } from "@reef-defi/evm-provider";
-import { WsProvider } from "@polkadot/api";
+import {
+  TestAccountSigningKey,
+  Provider,
+  Signer,
+} from "@reef-defi/evm-provider";
+import { WsProvider, Keyring } from "@polkadot/api";
+import { createTestPairs } from "@polkadot/keyring/testingPairs";
+import { KeyringPair } from "@polkadot/keyring/types";
 
-const provider = new Provider(
-  options({
-    provider: new WsProvider("ws://localhost:9944")
-  })
-);
+const WS_URL = process.env.WS_URL || "ws://127.0.0.1:9944";
+const seed = process.env.SEED;
+
+const setup = async () => {
+  const provider = new Provider({
+    provider: new WsProvider(WS_URL),
+  });
+
+  await provider.api.isReady;
+
+  let pair: KeyringPair;
+  if (seed) {
+    const keyring = new Keyring({ type: "sr25519" });
+    pair = keyring.addFromUri(seed);
+  } else {
+    const testPairs = createTestPairs();
+    pair = testPairs.alice;
+  }
+
+  const signingKey = new TestAccountSigningKey(provider.api.registry);
+  signingKey.addKeyringPair(pair);
+
+  const wallet = new Signer(provider, pair.address, signingKey);
+
+  // Claim default account
+  if (!(await wallet.isClaimed())) {
+    console.log(
+      "No claimed EVM account found -> claimed default EVM account: ",
+      await wallet.getAddress()
+    );
+    await wallet.claimDefaultAccount();
+  }
+
+  return {
+    wallet,
+    provider,
+  };
+};
+
+export default setup;
 ```
 
 with this object you can interact with the Substrate chain.
 
 ## EVM interaction
 
-Most of the api of `evm-provider.js` is compatible with `ethers.js`. If you are not familiar with ethers.js, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/).
+Most of `evm-provider.js` API is compatible with `ethers.js`. If you are not familiar with `ethers.js`, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/). See our [Reefswap example](https://github.com/reef-defi/reefswap/blob/653e6f4e77d228bba32fe233bff4a4811eae335e/src/deploy.ts) on how it uses the above `setup` script to deploy and interact with the EVM.
 
 ### Provider
 
-The Provider provides some api for interacting with nodes and is an instance of `ethers.js` [AbstractProvider](https://docs.ethers.io/v5/single-page/#/v5/api/providers/-%23-providers).
-
-#### Creating Instances
-
-**new Provider( apiOptions )**
-
-apiOptions has the same parameters as when creating an instance of apiPromise for polkadot.js 
-
+The Provider provides an API for interacting with nodes and is an instance of `ethers.js` [AbstractProvider](https://docs.ethers.io/v5/single-page/#/v5/api/providers/-%23-providers).
 
 ### Wallet
 
@@ -47,24 +82,6 @@ wallet.claimDefaultAccount()
 ```
 
 before performing any EVM calls otherwise it may lead to `InsufficientBalance` errors.
-
-
-#### Creating Instances
-
-**new Wallet( privateKey , provider? , keyringPair? )**
-
-`privateKey` is the private key of evm's account.`provider` is an instance of [Provider](#Provider). `keyringPair` is a [key pair for polkadot](https://polkadot.js.org/docs/api/start/keyring). If the `keyringPair` is empty, a key pair will be generated from the 
-`privateKey`.
-
-```javascript
-import { Wallet } from "@reef-defi/evm-provider";
-const wallet = new Wallet("0xaa397267eaee48b2262a973fdcab384a758f39a3ad8708025cfb675bb9effc20", provider)
-```
-
-
-# Examples
-
-For examples see scripts in [hardhat-reef-examples repo](https://github.com/reef-defi/hardhat-reef-examples/blob/master/scripts/flipper/deploy.js).
 
 # Develop
 
