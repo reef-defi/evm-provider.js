@@ -95,7 +95,7 @@ Most, but not all, of `evm-provider.js` API is compatible with `ethers.js`. If y
 
 ### Get EVM address
 
-```js
+```javascript
 // ethers
 let accounts = await this.provider.listAccounts();
 let selectedAccount = accounts[0];
@@ -113,7 +113,7 @@ The Provider provides an API for interacting with nodes and is an instance of `e
 The Signer class can sign transactions and messages using a private key. When using the wallet for the first time, make sure to always claim the EVM account for the wallet you are using:
 
 ```javascript
-wallet.claimDefaultAccount();
+signer.claimDefaultAccount();
 ```
 
 before performing any EVM calls otherwise it may lead to `InsufficientBalance` errors.
