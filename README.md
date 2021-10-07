@@ -67,19 +67,19 @@ const setup = async () => {
   const signingKey = new TestAccountSigningKey(provider.api.registry);
   signingKey.addKeyringPair(pair);
 
-  const wallet = new Signer(provider, pair.address, signingKey);
+  const signer = new Signer(provider, pair.address, signingKey);
 
   // Claim default account
-  if (!(await wallet.isClaimed())) {
+  if (!(await signer.isClaimed())) {
     console.log(
       "No claimed EVM account found -> claimed default EVM account: ",
-      await wallet.getAddress()
+      await signer.getAddress()
     );
-    await wallet.claimDefaultAccount();
+    await signer.claimDefaultAccount();
   }
 
   return {
-    wallet,
+    signer,
     provider,
   };
 };
@@ -89,20 +89,87 @@ export default setup;
 
 with this object you can interact with the Substrate chain.
 
+If you want to interact with injected sources (e.g. from Polkadot{.js}) you can do the following:
+
+```javascript
+import { Provider, Signer, } from "@reef-defi/evm-provider";
+import { WsProvider } from "@polkadot/api";
+import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
+
+const WS_URL = process.env.WS_URL || "ws://127.0.0.1:9944";
+const seed = process.env.SEED;
+
+const setup = async () => {
+  
+  // Return an array of all the injected sources
+  // (this needs to be called first)
+  const allInjected = await web3Enable('your dapp');
+
+  const injected;
+  if (allInjected[0] && allInjected[0].signer) {
+    injected = allInjected[0].signer;
+  }
+
+  // Return an array of { address, meta: { name, source } }
+  // (meta.source contains the name of the extension)
+  const allAccounts = await web3Accounts();
+
+  let account;
+  if (allAccounts[0] && allAccounts[0].address) {
+    account = allAccounts[0].address;
+  }
+
+  const provider = new Provider({
+    provider: new WsProvider(WS_URL)
+  });
+
+  await provider.api.isReady;
+
+  const signer = new Signer(provider, account, injected);
+
+  // Claim default account
+  if (!(await signer.isClaimed())) {
+    console.log(
+      "No claimed EVM account found -> claimed default EVM account: ",
+      await signer.getAddress()
+    );
+    await signer.claimDefaultAccount();
+  }
+
+  return {
+    signer,
+    provider,
+  };
+};
+
+export default setup;
+```
+
 ## EVM interaction
 
-Most of `evm-provider.js` API is compatible with `ethers.js`. If you are not familiar with `ethers.js`, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/). See our [Reefswap example](https://github.com/reef-defi/reefswap/blob/653e6f4e77d228bba32fe233bff4a4811eae335e/src/deploy.ts) on how it uses the above `setup` script to deploy and interact with the EVM.
+Most, but not all, of `evm-provider.js` API is compatible with `ethers.js`. If you are not familiar with `ethers.js`, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/). See our [Reefswap example](https://github.com/reef-defi/reefswap/blob/653e6f4e77d228bba32fe233bff4a4811eae335e/src/deploy.ts) on how it uses the above `setup` script to deploy and interact with the EVM.
+
+### Get EVM address
+
+```javascript
+// ethers
+let accounts = await this.provider.listAccounts();
+let selectedAccount = accounts[0];
+
+// evm-provider
+let selectedAccount = await this.signer.queryEvmAddress();
+```
 
 ### Provider
 
 The Provider provides an API for interacting with nodes and is an instance of `ethers.js` [AbstractProvider](https://docs.ethers.io/v5/single-page/#/v5/api/providers/-%23-providers).
 
-### Wallet
+### Signer
 
-The Wallet class inherits Signer and can sign transactions and messages using a private key. When using the wallet for the first time, make sure to always claim the EVM account for the wallet you are using:
+The Signer class can sign transactions and messages using a private key. When using the wallet for the first time, make sure to always claim the EVM account for the wallet you are using:
 
 ```javascript
-wallet.claimDefaultAccount()
+signer.claimDefaultAccount();
 ```
 
 before performing any EVM calls otherwise it may lead to `InsufficientBalance` errors.
