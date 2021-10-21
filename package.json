@@ -16,6 +16,10 @@
     "test:one": "polkadot-dev-run-test",
     "test:watch": "polkadot-dev-run-test --watch"
   },
+  "resolutions": {
+    "@ethersproject/abstract-provider": "~5.4.0",
+    "@ethersproject/abstract-signer": "~5.4.0"
+  },
   "dependencies": {
     "@ethersproject/abstract-provider": "~5.4.0",
     "@ethersproject/abstract-signer": "~5.4.0",

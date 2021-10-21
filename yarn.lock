@@ -1540,7 +1540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/abstract-provider@npm:5.4.1, @ethersproject/abstract-provider@npm:~5.4.0":
+"@ethersproject/abstract-provider@npm:~5.4.0":
   version: 5.4.1
   resolution: "@ethersproject/abstract-provider@npm:5.4.1"
   dependencies:
@@ -1555,22 +1555,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/abstract-provider@npm:^5.4.0, @ethersproject/abstract-provider@npm:^5.5.0":
-  version: 5.5.1
-  resolution: "@ethersproject/abstract-provider@npm:5.5.1"
-  dependencies:
-    "@ethersproject/bignumber": ^5.5.0
-    "@ethersproject/bytes": ^5.5.0
-    "@ethersproject/logger": ^5.5.0
-    "@ethersproject/networks": ^5.5.0
-    "@ethersproject/properties": ^5.5.0
-    "@ethersproject/transactions": ^5.5.0
-    "@ethersproject/web": ^5.5.0
-  checksum: 73ee68b2320cd436b57a67051606b6d062ddebed6fd4c52b30c02134b81e43aca9bb1815c0956f3c8f519ddbaf9710f349021d1f054f11a88361e0c3f1a9b9f2
-  languageName: node
-  linkType: hard
-
-"@ethersproject/abstract-signer@npm:5.4.1, @ethersproject/abstract-signer@npm:~5.4.0":
+"@ethersproject/abstract-signer@npm:~5.4.0":
   version: 5.4.1
   resolution: "@ethersproject/abstract-signer@npm:5.4.1"
   dependencies:
@@ -1580,19 +1565,6 @@ __metadata:
     "@ethersproject/logger": ^5.4.0
     "@ethersproject/properties": ^5.4.0
   checksum: 5fe9c3978d9c1ca9a5f47ed8afb2d8d00c97e4304114e72ea149816c9a607979022bff01176cb9b293ac8753158399ae7bdf57901f3deb8f7cb050e06070ad1e
-  languageName: node
-  linkType: hard
-
-"@ethersproject/abstract-signer@npm:^5.4.0, @ethersproject/abstract-signer@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "@ethersproject/abstract-signer@npm:5.5.0"
-  dependencies:
-    "@ethersproject/abstract-provider": ^5.5.0
-    "@ethersproject/bignumber": ^5.5.0
-    "@ethersproject/bytes": ^5.5.0
-    "@ethersproject/logger": ^5.5.0
-    "@ethersproject/properties": ^5.5.0
-  checksum: d0de55b8b49b43de9976cc2fd73deff33700cea088e50ae46aa71cc0962d5f770f782be584541230253ecc125e238e2123abf11f692d7b019a1e43e6526b2197
   languageName: node
   linkType: hard
 
@@ -1893,7 +1865,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/networks@npm:^5.4.0, @ethersproject/networks@npm:^5.5.0":
+"@ethersproject/networks@npm:^5.4.0":
   version: 5.5.0
   resolution: "@ethersproject/networks@npm:5.5.0"
   dependencies:
@@ -2173,7 +2145,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/web@npm:^5.4.0, @ethersproject/web@npm:^5.5.0":
+"@ethersproject/web@npm:^5.4.0":
   version: 5.5.0
   resolution: "@ethersproject/web@npm:5.5.0"
   dependencies:
