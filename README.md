@@ -16,21 +16,6 @@ Install dependencies with `yarn` [see issue](https://github.com/reef-defi/evm-pr
 yarn add @reef-defi/evm-provider
 ```
 
-If you are planning to use the `evm-provider.js` with the `ethers` package, include the following resolutions in your `package.json` file:
-
-```json
-  "resolutions": {
-    "@ethersproject/abstract-signer": "5.0.9",
-    "@ethersproject/abstract-provider": "5.0.9",
-    "@ethersproject/bignumber": "5.0.9",
-    "@ethersproject/bytes": "5.0.9",
-    "@ethersproject/logger": "5.0.9",
-    "@ethersproject/properties": "5.0.9"
-  }
-```
-
-to force the use of the correct dependencies for the `AbstractProvider` and `AbstractSigner`.
-
 ## Getting started
 
 To create a `Provider` instance, use the following code:
@@ -173,3 +158,9 @@ signer.claimDefaultAccount();
 ```
 
 before performing any EVM calls otherwise it may lead to `InsufficientBalance` errors.
+
+## Changelog
+
+- version 1.\*.\* works from Reef v8 chain onwards
+  - no longer requires `resolutions` with `ethers@5.0.9`
+- version 0.\*.\* works from Reef v0 to v7
