@@ -6,6 +6,7 @@ import type {
   BlockTag,
   BlockWithTransactions,
   EventType,
+  FeeData,
   Filter,
   Listener,
   Log,
@@ -33,7 +34,7 @@ import {
 } from '@polkadot/util';
 import { encodeAddress } from '@polkadot/util-crypto';
 import type BN from 'bn.js';
-import { DataProvider } from './DataProvider';
+import { AbstractDataProvider } from './DataProvider';
 import { toBN } from './utils';
 
 const logger = new Logger('evm-provider');
@@ -41,7 +42,7 @@ export class Provider implements AbstractProvider {
   readonly api: ApiPromise;
   readonly resolveApi: Promise<ApiPromise>;
   readonly _isProvider: boolean;
-  readonly dataProvider?: DataProvider;
+  readonly dataProvider?: AbstractDataProvider;
   readonly scanner: Scanner;
 
   /**
@@ -49,7 +50,7 @@ export class Provider implements AbstractProvider {
    * @param _apiOptions
    * @param dataProvider
    */
-  constructor(_apiOptions: ApiOptions, dataProvider?: DataProvider) {
+  constructor(_apiOptions: ApiOptions, dataProvider?: AbstractDataProvider) {
     const apiOptions = options(_apiOptions);
 
     this.api = new ApiPromise(apiOptions);
@@ -106,6 +107,14 @@ export class Provider implements AbstractProvider {
   async getGasPrice(): Promise<BigNumber> {
     // return logger.throwError(`Unsupport getGasPrice`);
     return BigNumber.from(0);
+  }
+
+  async getFeeData(): Promise<FeeData> {
+    return {
+      maxFeePerGas: BigNumber.from(1),
+      maxPriorityFeePerGas: BigNumber.from(1),
+      gasPrice: BigNumber.from(1)
+    };
   }
 
   /**
@@ -505,7 +514,9 @@ export class Provider implements AbstractProvider {
       confirmations: 4,
       cumulativeGasUsed: gasUsed,
       byzantium: false,
-      status
+      status,
+      effectiveGasPrice: BigNumber.from('1'),
+      type: 0
     };
   }
 
