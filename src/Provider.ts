@@ -16,11 +16,10 @@ import type {
   TransactionResponse
 } from '@ethersproject/abstract-provider';
 import { isHexString } from '@ethersproject/bytes';
-import { resolveProperties } from '@ethersproject/properties';
+import { resolveProperties, Deferrable } from '@ethersproject/properties';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Logger } from '@ethersproject/logger';
 import type { Network } from '@ethersproject/networks';
-import { Deferrable } from '@ethersproject/properties';
 import Scanner from '@open-web3/scanner';
 import { ApiPromise } from '@polkadot/api';
 import { ApiOptions } from '@polkadot/api/types';
@@ -745,7 +744,7 @@ export class Provider implements AbstractProvider {
   ): Promise<BigNumber> {
     if (tx.customData) {
       if ('storageLimit' in tx.customData) {
-        const storageLimit = tx.customData['storageLimit'];
+        const storageLimit = tx.customData.storageLimit;
         if (BigNumber.isBigNumber(storageLimit)) {
           return storageLimit;
         } else if (isNumber(storageLimit)) {
