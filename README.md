@@ -159,8 +159,26 @@ signer.claimDefaultAccount();
 
 before performing any EVM calls otherwise it may lead to `InsufficientBalance` errors.
 
-## Changelog
+## Gas limit and storage limit
+In addition to the gas limit (processing), the Reef chain also charges a [storage fee](https://docs.substrate.io/v3/runtime/smart-contracts/#storage-deposit). When you interact with the EVM, Reef chain will estimate both fees and as such the fees will be invisible to the user. This should work in 99% of cases. It assumes you have at least 60 REEF tokens on the signing account. However, sometimes the heuristics (usually for more complex contracts) are wrong. In this case you can force the values of `gasLimit` and `storageLimit` by adding them to the `options` dictionary at the end of every call, for example:
 
-- version 1.\*.\* works from Reef v8 chain onwards
+```
+await factory.deploy(<contract_args>, {
+  gasLimit: 1000000,
+  customData: { storageLimit: 1000000 }
+});
+```
+
+If you require maximum flexibility `evm-provider` exports maximum gas and storage limit:
+
+```
+import { MAX_GAS_LIMIT, MAX_STORAGE_LIMIT } from "@reef-defi/evm-provider";
+```
+which default to `U64MAX` and `U32MAX` respectively.
+
+## Versions
+- versions 1.\*.\* work from Reef v8 chain onwards
   - no longer requires `resolutions` with `ethers@5.0.9`
-- version 0.\*.\* works from Reef v0 to v7
+- versions 0.\*.\* work from Reef v0 to v7
+
+#### [Changelog](./CHANGELOG.md)

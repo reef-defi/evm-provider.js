@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { options } from '@reef-defi/api';
-import { EvmAccountInfo } from '@reef-defi/types/interfaces';
+import { EvmContractInfo, EvmAccountInfo } from '@reef-defi/types/interfaces';
 import type {
   Block,
   BlockTag,
@@ -15,10 +15,11 @@ import type {
   TransactionRequest,
   TransactionResponse
 } from '@ethersproject/abstract-provider';
+import { isHexString } from '@ethersproject/bytes';
+import { resolveProperties, Deferrable } from '@ethersproject/properties';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Logger } from '@ethersproject/logger';
 import type { Network } from '@ethersproject/networks';
-import { Deferrable } from '@ethersproject/properties';
 import Scanner from '@open-web3/scanner';
 import { ApiPromise } from '@polkadot/api';
 import { ApiOptions } from '@polkadot/api/types';
@@ -196,14 +197,108 @@ export class Provider implements AbstractProvider {
   ): Promise<string> {
     await this.resolveApi;
 
-    const address = await this._resolveEvmAddress(addressOrName);
-    const blockHash = await this._resolveBlockHash(blockTag);
+    const { address, blockHash } = await resolveProperties({
+      address: this._resolveEvmAddress(addressOrName),
+      blockHash: this._getBlockTag(blockTag)
+    });
 
-    const code = blockHash
-      ? await this.api.query.evm.accountCodes.at(blockHash, address)
-      : await this.api.query.evm.accountCodes(address);
+    const contractInfo = await this.queryContractInfo(address, blockHash);
+
+    if (contractInfo.isNone) {
+      return '0x';
+    }
+
+    const codeHash = contractInfo.unwrap().codeHash;
+    const api = await (blockHash ? this.api.at(blockHash) : this.api);
+    const code = await api.query.evm.codes(codeHash);
 
     return code.toHex();
+  }
+
+  async _getBlockTag(blockTag?: BlockTag | Promise<BlockTag>): Promise<string> {
+    blockTag = await blockTag;
+
+    if (blockTag === undefined) {
+      blockTag = 'latest';
+    }
+
+    switch (blockTag) {
+      case 'pending': {
+        return logger.throwError(
+          'pending tag not implemented',
+          Logger.errors.UNSUPPORTED_OPERATION
+        );
+      }
+      case 'latest': {
+        const hash = await this.api.rpc.chain.getBlockHash();
+        return hash.toHex();
+      }
+      case 'earliest': {
+        const hash = this.api.genesisHash;
+        return hash.toHex();
+      }
+      default: {
+        if (!isHexString(blockTag)) {
+          return logger.throwArgumentError(
+            'blocktag should be a hex string',
+            'blockTag',
+            blockTag
+          );
+        }
+
+        // block hash
+        if (typeof blockTag === 'string' && isHexString(blockTag, 32)) {
+          return blockTag;
+        }
+
+        const blockNumber = BigNumber.from(blockTag).toNumber();
+
+        const hash = await this.api.rpc.chain.getBlockHash(blockNumber);
+
+        return hash.toHex();
+      }
+    }
+  }
+
+  async queryAccountInfo(
+    addressOrName: string | Promise<string>,
+    blockTag?: BlockTag | Promise<BlockTag>
+  ): Promise<Option<EvmAccountInfo>> {
+    // pending tag
+    const resolvedBlockTag = await blockTag;
+    if (resolvedBlockTag === 'pending') {
+      const address = await this._resolveEvmAddress(addressOrName);
+      return this.api.query.evm.accounts<Option<EvmAccountInfo>>(address);
+    }
+
+    const { address, blockHash } = await resolveProperties({
+      address: this._resolveEvmAddress(addressOrName),
+      blockHash: this._getBlockTag(blockTag)
+    });
+
+    const apiAt = await this.api.at(blockHash);
+
+    const accountInfo = await apiAt.query.evm.accounts<Option<EvmAccountInfo>>(
+      address
+    );
+
+    return accountInfo;
+  }
+
+  async queryContractInfo(
+    addressOrName: string | Promise<string>,
+    blockTag?: BlockTag | Promise<BlockTag>
+  ): Promise<Option<EvmContractInfo>> {
+    const accountInfo = await this.queryAccountInfo(addressOrName, blockTag);
+
+    if (accountInfo.isNone) {
+      return this.api.createType<Option<EvmContractInfo>>(
+        'Option<EvmContractInfo>',
+        null
+      );
+    }
+
+    return accountInfo.unwrap().contractInfo;
   }
 
   /**
@@ -297,15 +392,27 @@ export class Provider implements AbstractProvider {
     const value = await resolved.value;
     const to = await resolved.to;
     const data = await resolved.data;
+    const storageLimit = await this._resolveStorageLimit(resolved);
 
     if (!from) {
       return logger.throwError('From cannot be undefined');
     }
 
-    // the minimum of 60 Reef tokens
+    // construct extrinsic to estimate
     const extrinsic = !to
-      ? this.api.tx.evm.create(data, toBN(value), '0', 60_000)
-      : this.api.tx.evm.call(to, data, toBN(value), '0', 60_000);
+      ? this.api.tx.evm.create(
+          data,
+          toBN(value),
+          toBN(await resolved.gasLimit),
+          toBN(storageLimit)
+        )
+      : this.api.tx.evm.call(
+          to,
+          data,
+          toBN(value),
+          toBN(await resolved.gasLimit),
+          toBN(storageLimit)
+        );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await (this.api.rpc as any).evm.estimateResources(
@@ -611,9 +718,8 @@ export class Provider implements AbstractProvider {
   }
 
   async _resolveTransaction(
-    transaction: Deferrable<TransactionRequest>
+    tx: Deferrable<TransactionRequest>
   ): Promise<Deferrable<TransactionRequest>> {
-    const tx = await transaction;
     for (const key of ['gasLimit', 'value']) {
       const typeKey = key as 'gasLimit' | 'value';
 
@@ -631,5 +737,23 @@ export class Provider implements AbstractProvider {
     delete tx.chainId;
 
     return tx;
+  }
+
+  async _resolveStorageLimit(
+    tx: Deferrable<TransactionRequest>
+  ): Promise<BigNumber> {
+    if (tx.customData) {
+      if ('storageLimit' in tx.customData) {
+        const storageLimit = tx.customData.storageLimit;
+        if (BigNumber.isBigNumber(storageLimit)) {
+          return storageLimit;
+        } else if (isNumber(storageLimit)) {
+          return BigNumber.from(storageLimit);
+        }
+      }
+    }
+
+    // At least 60 REEF are needed to deploy
+    return BigNumber.from(60_000);
   }
 }
