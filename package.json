@@ -1,6 +1,6 @@
 {
   "name": "@reef-defi/evm-provider",
-  "version": "1.0.3",
+  "version": "1.0.4-0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "repository": "git@github.com:reef-defi/evm-provider.js.git",
@@ -46,5 +46,6 @@
     "ts-node": "~10.2.0",
     "typescript": "~4.4.3"
   },
-  "packageManager": "yarn@3.0.1"
+  "packageManager": "yarn@3.0.1",
+  "stableVersion": "1.0.3"
 }
