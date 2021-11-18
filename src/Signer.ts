@@ -246,14 +246,14 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
 
     const resources = await this.provider.estimateResources(transaction);
 
-    // Multiply by 1.1
-    const gasLimit: BigNumber = resources.gas.mul(11).div(10);
-    const storageLimit: BigNumber = resources.storage.mul(11).div(10);
+    // Multiply by 3.1
+    const gasLimit: BigNumber = resources.gas.mul(31).div(10);
+    const storageLimit: BigNumber = resources.storage.mul(31).div(10);
 
     let totalLimit = await transaction.gasLimit;
 
     if (totalLimit === null || totalLimit === undefined) {
-      totalLimit = resources.gas.add(resources.storage);
+      totalLimit = gasLimit.add(storageLimit);
     }
 
     transaction.gasLimit = totalLimit;
