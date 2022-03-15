@@ -40,7 +40,6 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
 
   constructor(provider: Provider, address: string, signingKey: SigningKey) {
     super();
-
     defineReadOnly(this, 'provider', provider);
     defineReadOnly(this, 'signingKey', signingKey);
 
