@@ -7,13 +7,19 @@ import {Logger} from '@ethersproject/logger';
 import {ApiOptions} from '@polkadot/api/types';
 import {AbstractDataProvider} from './DataProvider';
 import {Provider} from "./Provider";
-import {Observable} from "rxjs";
+import {Observable, Subscription, take} from "rxjs";
 import {getEvmEvents$} from "./graphqlUtil";
 
 const logger = new Logger('evm-provider');
+
+interface EventSubscription {
+  event: Event;
+  subscription: Subscription
+}
+
 export class ApolloReefscanProvider extends Provider {
   private apollo: any;
-  private _events: Event[]=[];
+  private _events: EventSubscription[]=[];
   private _eventTagObservables: Map<string, Observable<any>> = new Map();
   /**
    *
@@ -106,12 +112,6 @@ export class ApolloReefscanProvider extends Provider {
     throw new Error("invalid event - " + eventName);
   }
 
-  _startEvent(event: Event): void {
-    // this.polling = (this._events.filter((e) => e.pollable()).length > 0);
-    const events$ = this.getEventEvmValues$(event);
-    ... subscribe and call handler
-  }
-
   private getEventEvmValues$(event: Event) {
     if (!this._eventTagObservables.has(event.tag)) {
       this._eventTagObservables.set(event.tag, getEvmEvents$(this.apollo, event.filter))
@@ -119,9 +119,31 @@ export class ApolloReefscanProvider extends Provider {
     return this._eventTagObservables.get(event.tag);
   }
 
+  _startEvent(event: Event): void {
+    let eventsVal$ = this.getEventEvmValues$(event);
+    if(event.once){
+      eventsVal$ = eventsVal$.pipe(take(1));
+    }
+    const self = this;
+    const observer = {
+      next: (...args: Array<any>)=>event.listener.apply(self, args),
+      error: (error: any) => {
+        console.log('EVM Event ='+event+' error=', error);
+        this._stopEvent(event);
+      },
+      complete: () => this._stopEvent(event),
+    };
+    const subscription = eventsVal$.subscribe(observer);
+    this._events.push({event, subscription});
+  }
+
   _stopEvent(event: Event): void {
-    // this.polling = (this._events.filter((e) => e.pollable()).length > 0);
-    // if any event not left with tag unsubscribe
+    const eventIdx = this._events.findIndex(e=>e.event===event);
+    if(eventIdx) {
+      const {subscription} = this._events[eventIdx];
+      subscription.unsubscribe();
+      this._events.splice(eventIdx, 1);
+    }
   }
 
   _addEventListener(eventName: EventType, listener: Listener, once: boolean): this {
@@ -129,45 +151,61 @@ export class ApolloReefscanProvider extends Provider {
     if(event.type === 'tx'){
       return logger.throwError('tx hash hex event listener not supported');
     }
-    this._events.push(event);
     this._startEvent(event);
 
     return this;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  emit(eventName: EventType, ...args: Array<any>): boolean {
-    return logger.throwError('Unsupport Event1');
+  getEventsBy(eventName?: EventType, listener?: Listener): EventSubscription[] {
+    if (!eventName) {
+      return [...this._events];
+    }
+
+    let eventTag = this.getEventTag(eventName);
+    return this._events.filter((eventSubs) => {
+      return (eventSubs.event.tag === eventTag || (listener && eventSubs.event.listener=== listener));
+    });
   }
 
   listenerCount(eventName?: EventType): number {
-    return logger.throwError('Unsupport Event2');
+    return this.getEventsBy(eventName).length;
   }
 
   listeners(eventName?: EventType): Array<Listener> {
-    return logger.throwError('Unsupport Event3');
+    return this.getEventsBy(eventName).map(evSubs=>evSubs.event.listener);
   }
 
   off(eventName: EventType, listener?: Listener): AbstractProvider {
-    return logger.throwError('Unsupport Event4');
+    if (listener == null) {
+      return this.removeAllListeners(eventName);
+    }
+
+    this.getEventsBy(eventName, listener).forEach(evSubs => this._stopEvent(evSubs.event));
+    return this;
   }
 
   on(eventName: EventType, listener: Listener): AbstractProvider {
     if(!eventName){
       return logger.throwError('Empty eventName not supported.');
     }
-    console.log("PRO ON=",eventName, this.apollo);
     return this._addEventListener(eventName, listener, false);
-    listener('hello from provider')
-    return this
   }
 
   once(eventName: EventType, listener: Listener): AbstractProvider {
-    return logger.throwError('Unsupport Event6');
+    return this._addEventListener(eventName, listener, true);
   }
 
   removeAllListeners(eventName?: EventType): AbstractProvider {
-    return logger.throwError('Unsupport Event7');
+    let stopped: Array<EventSubscription>;
+    if (eventName == null) {
+      stopped = this._events;
+    } else {
+      stopped = this.getEventsBy(eventName);
+    }
+
+    stopped.forEach((eventSub) => { this._stopEvent(eventSub.event); });
+
+    return this;
   }
 
   addListener(eventName: EventType, listener: Listener): AbstractProvider {
