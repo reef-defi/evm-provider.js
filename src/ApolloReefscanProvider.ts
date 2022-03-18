@@ -126,12 +126,18 @@ export class ApolloReefscanProvider extends Provider {
     }
     const self = this;
     const observer = {
-      next: (...args: Array<any>)=>event.listener.apply(self, args),
+      next: (...args: Array<any>)=> {
+        console.log("EVENT HOOK CALL=",event.tag, args);
+        event.listener.apply(self, args)
+      },
       error: (error: any) => {
         console.log('EVM Event ='+event+' error=', error);
         this._stopEvent(event);
       },
-      complete: () => this._stopEvent(event),
+      complete: () => {
+        console.log("EVEnt completeeee=",event);
+        this._stopEvent(event)
+      },
     };
     const subscription = eventsVal$.subscribe(observer);
     this._events.push({event, subscription});
