@@ -124,6 +124,7 @@ export class ApolloReefscanProvider extends Provider {
     if(event.once){
       eventsVal$ = eventsVal$.pipe(take(1));
     }
+    console.log("START providerEVM_EVENT=",event);
     const self = this;
     const observer = {
       next: (...args: Array<any>)=> {
