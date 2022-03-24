@@ -7,7 +7,7 @@ import {Logger} from '@ethersproject/logger';
 import {ApiOptions} from '@polkadot/api/types';
 import {AbstractDataProvider} from './DataProvider';
 import {Provider} from "./Provider";
-import {Observable, Subscription, take} from "rxjs";
+import {Observable, ReplaySubject, share, Subscription, switchMap, take} from "rxjs";
 import {getEvmEvents$} from "./graphqlUtil";
 
 const logger = new Logger('evm-provider');
@@ -18,7 +18,7 @@ interface EventSubscription {
 }
 
 export class ApolloReefscanProvider extends Provider {
-  private apollo: any;
+  private apolloClientSubj = new ReplaySubject<any>(1);
   private _events: EventSubscription[]=[];
   private _eventTagObservables: Map<string, Observable<any>> = new Map();
   /**
@@ -26,13 +26,12 @@ export class ApolloReefscanProvider extends Provider {
    * @param _apiOptions
    * @param dataProvider
    */
-  constructor(_apiOptions: ApiOptions, dataProvider?: AbstractDataProvider, apolloClient?: any) {
+  constructor(_apiOptions: ApiOptions, dataProvider?: AbstractDataProvider) {
     super(_apiOptions, dataProvider);
-    this.apollo = apolloClient;
   }
 
-  async init(): Promise<void> {
-    await super.init();
+  setApolloClient(apolloClient: any){
+    this.apolloClientSubj.next(apolloClient);
   }
 
   checkTopic(topic: string): string {
@@ -114,7 +113,11 @@ export class ApolloReefscanProvider extends Provider {
 
   private getEventEvmValues$(event: Event) {
     if (!this._eventTagObservables.has(event.tag)) {
-      this._eventTagObservables.set(event.tag, getEvmEvents$(this.apollo, event.filter))
+      const event$ = this.apolloClientSubj.pipe(
+        switchMap(apollo => getEvmEvents$(apollo, event.filter)),
+        share()
+      );
+      this._eventTagObservables.set(event.tag, event$)
     }
     return this._eventTagObservables.get(event.tag);
   }
@@ -129,6 +132,7 @@ export class ApolloReefscanProvider extends Provider {
     const observer = {
       next: (...args: Array<any>)=> {
         console.log("EVENT HOOK CALL=",event.tag, args);
+        event.listener('hello')
         event.listener.apply(self, args)
       },
       error: (error: any) => {
