@@ -127,13 +127,14 @@ export class ApolloReefscanProvider extends Provider {
     if(event.once){
       eventsVal$ = eventsVal$.pipe(take(1));
     }
-    console.log("START providerEVM_EVENT=",event);
+    console.log("START providerEVM_EVENT=",event.tag);
     const self = this;
     const observer = {
       next: (...args: Array<any>)=> {
         console.log("EVENT HOOK CALL=",event.tag, args);
-        event.listener('hello')
-        event.listener.apply(self, args)
+        // event.listener('hello')
+        // event.listener.apply(self, ['okkkk', ...args])
+        event.listener.apply(self, [{value:'ooookkk111'}])
       },
       error: (error: any) => {
         console.log('EVM Event ='+event+' error=', error);
@@ -152,12 +153,17 @@ export class ApolloReefscanProvider extends Provider {
     const eventIdx = this._events.findIndex(e=>e.event===event);
     if(eventIdx) {
       const {subscription} = this._events[eventIdx];
-      subscription.unsubscribe();
-      this._events.splice(eventIdx, 1);
+      console.log("STOP EVENT=",subscription);
+      // subscription.unsubscribe();
+      // this._events.splice(eventIdx, 1);
     }
   }
 
   _addEventListener(eventName: EventType, listener: Listener, once: boolean): this {
+    console.log("////// add listener //////");
+    // console.dir(listener);
+    listener.apply(self, [{value:'helloo11oo'}])
+    console.log("////// add listener END //////");
     const event = new Event(this.getEventTag(eventName), listener, once)
     if(event.type === 'tx'){
       return logger.throwError('tx hash hex event listener not supported');
@@ -174,7 +180,7 @@ export class ApolloReefscanProvider extends Provider {
 
     let eventTag = this.getEventTag(eventName);
     return this._events.filter((eventSubs) => {
-      return (eventSubs.event.tag === eventTag || (listener && eventSubs.event.listener=== listener));
+      return (eventSubs.event.tag === eventTag || (listener && eventSubs.event.listener === listener));
     });
   }
 
@@ -203,6 +209,8 @@ export class ApolloReefscanProvider extends Provider {
   }
 
   once(eventName: EventType, listener: Listener): AbstractProvider {
+    console.log("once EVM EVENt=", eventName);
+    listener();
     return this._addEventListener(eventName, listener, true);
   }
 
