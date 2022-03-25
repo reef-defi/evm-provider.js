@@ -1,25 +1,36 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type {EventType, Listener, Provider as AbstractProvider,} from '@ethersproject/abstract-provider';
-import {ForkEvent} from '@ethersproject/abstract-provider';
-import {hexDataLength} from '@ethersproject/bytes';
-import {Event} from '@ethersproject/providers/lib/base-provider';
-import {Logger} from '@ethersproject/logger';
-import {ApiOptions} from '@polkadot/api/types';
-import {AbstractDataProvider} from './DataProvider';
-import {Provider} from "./Provider";
-import {Observable, ReplaySubject, share, Subscription, switchMap, take} from "rxjs";
-import {getEvmEvents$} from "./graphqlUtil";
+import type {
+  EventType,
+  Listener,
+  Provider as AbstractProvider
+} from '@ethersproject/abstract-provider';
+import { ForkEvent } from '@ethersproject/abstract-provider';
+import { hexDataLength } from '@ethersproject/bytes';
+import { Event } from '@ethersproject/providers/lib/base-provider';
+import { Logger } from '@ethersproject/logger';
+import { ApiOptions } from '@polkadot/api/types';
+import { AbstractDataProvider } from './DataProvider';
+import { Provider } from './Provider';
+import {
+  Observable,
+  ReplaySubject,
+  share,
+  Subscription,
+  switchMap,
+  take
+} from 'rxjs';
+import { getEvmEvents$ } from './graphqlUtil';
 
 const logger = new Logger('evm-provider');
 
 interface EventSubscription {
   event: Event;
-  subscription: Subscription
+  subscription: Subscription;
 }
 
 export class ApolloReefscanProvider extends Provider {
   private apolloClientSubj = new ReplaySubject<any>(1);
-  private _events: EventSubscription[]=[];
+  private _events: EventSubscription[] = [];
   private _eventTagObservables: Map<string, Observable<any>> = new Map();
   /**
    *
@@ -30,14 +41,16 @@ export class ApolloReefscanProvider extends Provider {
     super(_apiOptions, dataProvider);
   }
 
-  setApolloClient(apolloClient: any){
+  setApolloClient(apolloClient: any) {
     this.apolloClientSubj.next(apolloClient);
   }
 
   checkTopic(topic: string): string {
-    if (topic == null) { return "null"; }
+    if (topic == null) {
+      return 'null';
+    }
     if (hexDataLength(topic) !== 32) {
-      logger.throwArgumentError("invalid topic", "topic", topic);
+      logger.throwArgumentError('invalid topic', 'topic', topic);
     }
     return topic.toLowerCase();
   }
@@ -45,130 +58,146 @@ export class ApolloReefscanProvider extends Provider {
   serializeTopics(topics: Array<string | Array<string>>): string {
     // Remove trailing null AND-topics; they are redundant
     topics = topics.slice();
-    while (topics.length > 0 && topics[topics.length - 1] == null) { topics.pop(); }
+    while (topics.length > 0 && topics[topics.length - 1] == null) {
+      topics.pop();
+    }
 
-    return topics.map((topic) => {
-      if (Array.isArray(topic)) {
+    return topics
+      .map((topic) => {
+        if (Array.isArray(topic)) {
+          // Only track unique OR-topics
+          const unique: { [topic: string]: boolean } = {};
+          topic.forEach((topic) => {
+            unique[this.checkTopic(topic)] = true;
+          });
 
-        // Only track unique OR-topics
-        const unique: { [ topic: string ]: boolean } = { }
-        topic.forEach((topic) => {
-          unique[this.checkTopic(topic)] = true;
-        });
+          // The order of OR-topics does not matter
+          const sorted = Object.keys(unique);
+          sorted.sort();
 
-        // The order of OR-topics does not matter
-        const sorted = Object.keys(unique);
-        sorted.sort();
-
-        return sorted.join("|");
-
-      } else {
-        return this.checkTopic(topic);
-      }
-    }).join("&");
+          return sorted.join('|');
+        } else {
+          return this.checkTopic(topic);
+        }
+      })
+      .join('&');
   }
 
   deserializeTopics(data: string): Array<string | Array<string>> {
-    if (data === "") { return [ ]; }
+    if (data === '') {
+      return [];
+    }
 
     return data.split(/&/g).map((topic) => {
-      if (topic === "") { return [ ]; }
+      if (topic === '') {
+        return [];
+      }
 
-      const comps = topic.split("|").map((topic) => {
-        return ((topic === "null") ? null: topic);
+      const comps = topic.split('|').map((topic) => {
+        return topic === 'null' ? null : topic;
       });
 
-      return ((comps.length === 1) ? comps[0]: comps);
+      return comps.length === 1 ? comps[0] : comps;
     });
   }
 
   getEventTag(eventName: EventType): string {
-    if (typeof(eventName) === "string") {
+    if (typeof eventName === 'string') {
       eventName = eventName.toLowerCase();
 
       if (hexDataLength(eventName) === 32) {
-        return "tx:" + eventName;
+        return 'tx:' + eventName;
       }
 
-      if (eventName.indexOf(":") === -1) {
+      if (eventName.indexOf(':') === -1) {
         return eventName;
       }
-
     } else if (Array.isArray(eventName)) {
       // return "filter:*:" + this.serializeTopics(eventName);
       logger.throwError('EVM events without contract address not supported');
     } else if (ForkEvent.isForkEvent(eventName)) {
-      logger.warn("not implemented");
-      throw new Error("not implemented");
-
-    } else if (eventName && typeof(eventName) === "object") {
+      logger.warn('not implemented');
+      throw new Error('not implemented');
+    } else if (eventName && typeof eventName === 'object') {
       if (!eventName.address) {
-        logger.throwError('EVM events with empty contract address not supported');
+        logger.throwError(
+          'EVM events with empty contract address not supported'
+        );
       }
-      return "filter:" + (eventName.address || "*") + ":" + this.serializeTopics(eventName.topics || []);
+      return (
+        'filter:' +
+        (eventName.address || '*') +
+        ':' +
+        this.serializeTopics(eventName.topics || [])
+      );
     }
 
-    throw new Error("invalid event - " + eventName);
+    throw new Error('invalid event - ' + eventName);
   }
 
   private getEventEvmValues$(event: Event) {
     if (!this._eventTagObservables.has(event.tag)) {
       const event$ = this.apolloClientSubj.pipe(
-        switchMap(apollo => getEvmEvents$(apollo, event.filter)),
+        switchMap((apollo) => getEvmEvents$(apollo, event.filter)),
         share()
       );
-      this._eventTagObservables.set(event.tag, event$)
+      this._eventTagObservables.set(event.tag, event$);
     }
     return this._eventTagObservables.get(event.tag);
   }
 
   _startEvent(event: Event): void {
     let eventsVal$ = this.getEventEvmValues$(event);
-    if(event.once){
+    if (event.once) {
       eventsVal$ = eventsVal$.pipe(take(1));
     }
-    console.log("START providerEVM_EVENT=",event.tag);
-    const self = this;
-    const observer = {
-      next: (...args: Array<any>)=> {
+    console.log('START providerEVM_EVENT=', event.tag);
+    // const self = this;
+    /* const observer = {
+      next: (...args: Array<any>) => {
         console.log("EVENT HOOK CALL=",event.tag, args);
         // event.listener('hello')
         // event.listener.apply(self, ['okkkk', ...args])
-        event.listener.apply(self, [{value:'ooookkk111'}])
+        // TODO event.listener.apply(self, [{value:'ooookkk111'}])
       },
       error: (error: any) => {
-        console.log('EVM Event ='+event+' error=', error);
-        this._stopEvent(event);
+        console.log('ERROR EVM Event ='+event+' error=', error);
+        // TODO this._stopEvent(event);
       },
       complete: () => {
         console.log("EVEnt completeeee=",event);
-        this._stopEvent(event)
-      },
+        // TODO this._stopEvent(event);
+      }
     };
-    const subscription = eventsVal$.subscribe(observer);
-    this._events.push({event, subscription});
+    const subscription = eventsVal$.subscribe(observer); */
+    // this._events.push({ event, subscription });
   }
 
   _stopEvent(event: Event): void {
-    const eventIdx = this._events.findIndex(e=>e.event===event);
-    if(eventIdx) {
-      const {subscription} = this._events[eventIdx];
-      console.log("STOP EVENT=",subscription);
+    const eventIdx = this._events.findIndex((e) => e.event === event);
+    if (eventIdx) {
+      const { subscription } = this._events[eventIdx];
+      console.log('STOP EVENT=', subscription);
       // subscription.unsubscribe();
       // this._events.splice(eventIdx, 1);
     }
   }
 
-  _addEventListener(eventName: EventType, listener: Listener, once: boolean): this {
-    console.log("////// add listener //////");
+  _addEventListener(
+    eventName: EventType,
+    listener: Listener,
+    once: boolean
+  ): this {
+    console.log('////// add listener //////', eventName, once);
     // console.dir(listener);
-    listener.apply(self, [{value:'helloo11oo'}])
-    console.log("////// add listener END //////");
-    const event = new Event(this.getEventTag(eventName), listener, once)
-    if(event.type === 'tx'){
-      return logger.throwError('tx hash hex event listener not supported');
-    }
-    this._startEvent(event);
+    // listener.apply(self, [{ value: 'helloo11oo' }]);
+    // listener({});
+    console.log('////// add listener END //////');
+    // const event = new Event(this.getEventTag(eventName), listener, once);
+    // if (event.type === 'tx') {
+    //   return logger.throwError('tx hash hex event listener not supported');
+    // }
+    // this._startEvent(event);
 
     return this;
   }
@@ -178,9 +207,12 @@ export class ApolloReefscanProvider extends Provider {
       return [...this._events];
     }
 
-    let eventTag = this.getEventTag(eventName);
+    const eventTag = this.getEventTag(eventName);
     return this._events.filter((eventSubs) => {
-      return (eventSubs.event.tag === eventTag || (listener && eventSubs.event.listener === listener));
+      return (
+        eventSubs.event.tag === eventTag ||
+        (listener && eventSubs.event.listener === listener)
+      );
     });
   }
 
@@ -189,32 +221,37 @@ export class ApolloReefscanProvider extends Provider {
   }
 
   listeners(eventName?: EventType): Array<Listener> {
-    return this.getEventsBy(eventName).map(evSubs=>evSubs.event.listener);
+    return this.getEventsBy(eventName).map((evSubs) => evSubs.event.listener);
   }
 
-  off(eventName: EventType, listener?: Listener): AbstractProvider {
+ /* TODO off(eventName: EventType, listener?: Listener): AbstractProvider {
+    console.log("OFFFFFF=",listener);
     if (listener == null) {
       return this.removeAllListeners(eventName);
     }
 
-    this.getEventsBy(eventName, listener).forEach(evSubs => this._stopEvent(evSubs.event));
+    this.getEventsBy(eventName, listener).forEach((evSubs) =>
+      this._stopEvent(evSubs.event)
+    );
     return this;
-  }
+  }*/
 
   on(eventName: EventType, listener: Listener): AbstractProvider {
-    if(!eventName){
+    if (!eventName) {
       return logger.throwError('Empty eventName not supported.');
     }
     return this._addEventListener(eventName, listener, false);
   }
 
   once(eventName: EventType, listener: Listener): AbstractProvider {
-    console.log("once EVM EVENt=", eventName);
+    console.log('once EVM EVENt=', eventName);
     listener();
     return this._addEventListener(eventName, listener, true);
   }
 
+  /* TODO
   removeAllListeners(eventName?: EventType): AbstractProvider {
+    console.log("REMOVE EV LISSSSS=",eventName);
     let stopped: Array<EventSubscription>;
     if (eventName == null) {
       stopped = this._events;
@@ -222,10 +259,12 @@ export class ApolloReefscanProvider extends Provider {
       stopped = this.getEventsBy(eventName);
     }
 
-    stopped.forEach((eventSub) => { this._stopEvent(eventSub.event); });
+    stopped.forEach((eventSub) => {
+      this._stopEvent(eventSub.event);
+    });
 
     return this;
-  }
+  }*/
 
   addListener(eventName: EventType, listener: Listener): AbstractProvider {
     return this.on(eventName, listener);
@@ -234,5 +273,4 @@ export class ApolloReefscanProvider extends Provider {
   removeListener(eventName: EventType, listener: Listener): AbstractProvider {
     return this.off(eventName, listener);
   }
-
 }
