@@ -24,6 +24,8 @@ import {
   decodeAddress,
   isEthereumAddress
 } from '@polkadot/util-crypto';
+
+import { isNumber } from '@polkadot/util';
 import { Provider } from './Provider';
 import { SigningKey } from './SigningKey';
 import { dataToString, handleTxResponse, toBN } from './utils';
@@ -248,7 +250,21 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
 
     // Multiply by 3.1
     const gasLimit: BigNumber = resources.gas.mul(31).div(10);
-    const storageLimit: BigNumber = resources.storage.mul(31).div(10);
+    let storageLimit: BigNumber;
+
+    // If the storage limit is supplied, override it from the estimateResources
+    if (transaction.customData) {
+      if ('storageLimit' in transaction.customData) {
+        storageLimit = transaction.customData.storageLimit;
+        if (BigNumber.isBigNumber(storageLimit)) {
+          storageLimit = storageLimit;
+        } else if (isNumber(storageLimit)) {
+          storageLimit = BigNumber.from(storageLimit);
+        }
+      }
+    } else {
+      storageLimit = resources.storage.mul(31).div(10);
+    }
 
     let totalLimit = await transaction.gasLimit;
 
