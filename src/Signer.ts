@@ -18,14 +18,13 @@ import { Deferrable, defineReadOnly } from '@ethersproject/properties';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { SubmittableResult } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { u8aConcat, u8aEq, u8aToHex } from '@polkadot/util';
+import { u8aConcat, u8aEq, u8aToHex, isNumber } from '@polkadot/util';
 import {
   blake2AsU8a,
   decodeAddress,
   isEthereumAddress
 } from '@polkadot/util-crypto';
 
-import { isNumber } from '@polkadot/util';
 import { Provider } from './Provider';
 import { SigningKey } from './SigningKey';
 import { dataToString, handleTxResponse, toBN } from './utils';
@@ -256,9 +255,7 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
     if (transaction.customData) {
       if ('storageLimit' in transaction.customData) {
         storageLimit = transaction.customData.storageLimit;
-        if (BigNumber.isBigNumber(storageLimit)) {
-          storageLimit = storageLimit;
-        } else if (isNumber(storageLimit)) {
+        if (isNumber(storageLimit)) {
           storageLimit = BigNumber.from(storageLimit);
         }
       }
