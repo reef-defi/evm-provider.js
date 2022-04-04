@@ -1,6 +1,6 @@
 {
   "name": "@reef-defi/evm-provider",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "repository": "git@github.com:reef-defi/evm-provider.js.git",
