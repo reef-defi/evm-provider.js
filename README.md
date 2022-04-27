@@ -170,7 +170,7 @@ const main = async (): Promise<void> =>  {
     const reefKey = keyring.addFromUri(reefPrivKeyRaw);
     const ethKey = new ethers.Wallet(ethPrivKey);
 
-    const msg = createClaimEvmSignature(reefKey.address, ethKey.address);
+    const msg = createClaimEvmSignature(reefKey.address);
     let signature = await ethKey.signMessage(msg);
 
     await provider.api.tx.evmAccounts.claimAccount(

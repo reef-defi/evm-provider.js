@@ -1,6 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
-import { BytesLike } from '@ethersproject/bytes';
+import { BytesLike, Bytes } from '@ethersproject/bytes';
 import { SubmittableResult, ApiPromise } from '@polkadot/api';
 import {
   bufferToU8a,
@@ -15,15 +15,11 @@ import {
 import BN from 'bn.js';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { toUtf8Bytes } from '@ethersproject/strings';
-import { Bytes } from '@ethersproject/bytes';
 
 export const U32MAX = BigNumber.from('0xffffffff');
 export const U64MAX = BigNumber.from('0xffffffffffffffff');
 
-export function createClaimEvmSignature(
-  substrateAddress: string,
-  evmAddress: string
-) {
+export function createClaimEvmSignature(substrateAddress: string): Bytes {
   const publicKeySubstrate = decodeAddress(substrateAddress);
   let message: Bytes | string =
     'reef evm:' + Buffer.from(publicKeySubstrate).toString('hex');
