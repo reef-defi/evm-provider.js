@@ -145,6 +145,45 @@ let selectedAccount = accounts[0];
 let selectedAccount = await this.signer.queryEvmAddress();
 ```
 
+### Claim EVM address
+
+If you would like to inject an evm address that you already own you can do so via the `claimAccount` extrinsic.  The script below illustrates how this can be done.
+
+```javascript
+import { Keyring, WsProvider } from '@polkadot/api';
+import { ethers } from 'ethers';
+import { createClaimEvmSignature } from './utils';
+import { Provider } from '.';
+
+const WS_URL = process.env.WS_URL || 'ws://127.0.0.1:9944';
+// reef address - 5H728gLgx4yuCSVEwGCAfLo3RtzTau9F6cTNqNJtrqqjACWq
+const reefPrivKeyRaw = process.env.REEF_PRIV_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000";
+const ethPrivKey = process.env.ETH_PRIV_KEY || "0x81376b9868b292a46a1c486d344e427a3088657fda629b5f4a647822d329cd6a";
+
+const main = async (): Promise<void> =>  {
+    const provider = new Provider({
+        provider: new WsProvider(WS_URL)
+    });
+    await provider.api.isReady;
+
+    const keyring = new Keyring({ type: 'sr25519' });
+    const reefKey = keyring.addFromUri(reefPrivKeyRaw);
+    const ethKey = new ethers.Wallet(ethPrivKey);
+
+    const msg = createClaimEvmSignature(reefKey.address, ethKey.address);
+    let signature = await ethKey.signMessage(msg);
+
+    await provider.api.tx.evmAccounts.claimAccount(
+        ethKey.address,
+        signature
+    ).signAndSend(reefKey);
+
+    process.exit();
+};
+
+main();
+```
+
 ### Provider
 
 The Provider provides an API for interacting with nodes and is an instance of `ethers.js` [AbstractProvider](https://docs.ethers.io/v5/single-page/#/v5/api/providers/-%23-providers).

@@ -13,9 +13,27 @@ import {
   u8aToHex
 } from '@polkadot/util';
 import BN from 'bn.js';
+import { decodeAddress } from '@polkadot/util-crypto';
+import { toUtf8Bytes } from '@ethersproject/strings';
+import { Bytes } from '@ethersproject/bytes';
 
 export const U32MAX = BigNumber.from('0xffffffff');
 export const U64MAX = BigNumber.from('0xffffffffffffffff');
+
+export function createClaimEvmSignature(
+  substrateAddress: string,
+  evmAddress: string
+) {
+  const publicKeySubstrate = decodeAddress(substrateAddress);
+  let message: Bytes | string =
+    'reef evm:' + Buffer.from(publicKeySubstrate).toString('hex');
+
+  if (typeof message === 'string') {
+    message = toUtf8Bytes(message);
+  }
+
+  return message;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 export function decodeMessage(reason: any, code: string): string {
