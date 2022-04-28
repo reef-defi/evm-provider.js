@@ -17,6 +17,7 @@
     "preserveWatchOutput": true,
     "pretty": false,
     "target": "es2015",
+    "skipLibCheck": true,
     "sourceMap": true,
     "rootDir": "./src",
     "resolveJsonModule": true

@@ -21,8 +21,8 @@
     "@ethersproject/abstract-provider": "~5.5.0"
   },
   "dependencies": {
-    "@open-web3/dev-config": "^0.1.13",
-    "@open-web3/scanner": "^1.0.1",
+    "@open-web3/dev-config": "0.1.13",
+    "@open-web3/scanner": "1.0.1",
     "@polkadot/api": "~6.4.2",
     "@polkadot/keyring": "~7.9.2",
     "@polkadot/rpc-provider": "~6.4.2",
@@ -33,6 +33,7 @@
     "@reef-defi/api-derive": "^1.0.4",
     "@reef-defi/type-definitions": "^1.0.4",
     "@reef-defi/types": "^1.0.4",
+    "@typescript-eslint/eslint-plugin": "4.8.1",
     "blakejs": "~1.1.0",
     "ethers": "~5.5.0"
   },
