@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { TransactionReceipt } from '@ethersproject/abstract-provider';
+import type {BlockTag, TransactionReceipt} from '@ethersproject/abstract-provider';
 import {
   TransactionRequest,
   TransactionResponse
@@ -211,6 +211,10 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
           reject(error && error.message);
         });
     });
+  }
+
+  getBalance(blockTag?: BlockTag): Promise<BigNumber> {
+    return this.provider.getBalance(this._substrateAddress, blockTag);
   }
 
   signTransaction(
