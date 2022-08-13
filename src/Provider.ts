@@ -33,7 +33,7 @@ import {
   u8aConcat,
   u8aFixLength
 } from '@polkadot/util';
-import {decodeAddress, encodeAddress} from '@polkadot/util-crypto';
+import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import type BN from 'bn.js';
 import { AbstractDataProvider } from './DataProvider';
 import { toBN } from './utils';
@@ -695,7 +695,7 @@ export class Provider implements AbstractProvider {
   ): Promise<string> {
     const resolved = await addressOrName;
     try {
-      if(!!resolved && !!decodeAddress(resolved, true, 42)){
+      if (!!resolved && !!decodeAddress(resolved, true, 42)) {
         return resolved;
       }
     } catch (err) {}

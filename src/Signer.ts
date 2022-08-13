@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type {BlockTag, TransactionReceipt} from '@ethersproject/abstract-provider';
+import type {
+  BlockTag,
+  TransactionReceipt
+} from '@ethersproject/abstract-provider';
 import {
   TransactionRequest,
   TransactionResponse
