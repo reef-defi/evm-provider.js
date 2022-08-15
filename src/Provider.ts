@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { options } from '@reef-defi/api';
-import { EvmContractInfo, EvmAccountInfo } from '@reef-defi/types/interfaces';
+import { EvmAccountInfo, EvmContractInfo } from '@reef-defi/types/interfaces';
 import type {
   Block,
   BlockTag,
@@ -16,7 +16,7 @@ import type {
   TransactionResponse
 } from '@ethersproject/abstract-provider';
 import { isHexString } from '@ethersproject/bytes';
-import { resolveProperties, Deferrable } from '@ethersproject/properties';
+import { Deferrable, resolveProperties } from '@ethersproject/properties';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Logger } from '@ethersproject/logger';
 import type { Network } from '@ethersproject/networks';
@@ -33,10 +33,10 @@ import {
   u8aConcat,
   u8aFixLength
 } from '@polkadot/util';
-import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import { encodeAddress } from '@polkadot/util-crypto';
 import type BN from 'bn.js';
 import { AbstractDataProvider } from './DataProvider';
-import { toBN } from './utils';
+import { resolveAddress, resolveEvmAddress, toBN } from './utils';
 
 const logger = new Logger('evm-provider');
 export class Provider implements AbstractProvider {
@@ -130,7 +130,7 @@ export class Provider implements AbstractProvider {
   ): Promise<BigNumber> {
     await this.resolveApi;
 
-    let address = await this._resolveAddress(addressOrName);
+    let address = await resolveAddress(addressOrName);
 
     if (!address) {
       address = await this._toAddress(addressOrName);
@@ -159,7 +159,7 @@ export class Provider implements AbstractProvider {
 
     const resolvedBlockTag = await blockTag;
 
-    const address = await this._resolveEvmAddress(addressOrName);
+    const address = await resolveEvmAddress(addressOrName);
 
     let account: Option<EvmAccountInfo>;
 
@@ -198,7 +198,7 @@ export class Provider implements AbstractProvider {
     await this.resolveApi;
 
     const { address, blockHash } = await resolveProperties({
-      address: this._resolveEvmAddress(addressOrName),
+      address: resolveEvmAddress(addressOrName),
       blockHash: this._getBlockTag(blockTag)
     });
 
@@ -267,12 +267,12 @@ export class Provider implements AbstractProvider {
     // pending tag
     const resolvedBlockTag = await blockTag;
     if (resolvedBlockTag === 'pending') {
-      const address = await this._resolveEvmAddress(addressOrName);
+      const address = await resolveEvmAddress(addressOrName);
       return this.api.query.evm.accounts<Option<EvmAccountInfo>>(address);
     }
 
     const { address, blockHash } = await resolveProperties({
-      address: this._resolveEvmAddress(addressOrName),
+      address: resolveEvmAddress(addressOrName),
       blockHash: this._getBlockTag(blockTag)
     });
 
@@ -315,7 +315,7 @@ export class Provider implements AbstractProvider {
   ): Promise<string> {
     await this.resolveApi;
 
-    const address = await this._resolveEvmAddress(addressOrName);
+    const address = await resolveEvmAddress(addressOrName);
     const blockHash = await this._resolveBlockHash(blockTag);
 
     const code = blockHash
@@ -690,36 +690,12 @@ export class Provider implements AbstractProvider {
     }
   }
 
-  async _resolveAddress(
-    addressOrName: string | Promise<string>
-  ): Promise<string> {
-    const resolved = await addressOrName;
-    try {
-      if (!!resolved && !!decodeAddress(resolved, true, 42)) {
-        return resolved;
-      }
-    } catch (err) {}
-    const result = await this.api.query.evmAccounts.accounts(resolved);
-    return result.toString();
-  }
-
   async _toAddress(addressOrName: string | Promise<string>): Promise<string> {
     const resolved = await addressOrName;
     const address = encodeAddress(
       u8aFixLength(u8aConcat('evm:', hexToU8a(resolved)), 256, true)
     );
     return address.toString();
-  }
-
-  async _resolveEvmAddress(
-    addressOrName: string | Promise<string>
-  ): Promise<string> {
-    const resolved = await addressOrName;
-    if (resolved.length === 42) {
-      return resolved;
-    }
-    const result = await this.api.query.evmAccounts.evmAddresses(resolved);
-    return result.toString();
   }
 
   async _resolveTransaction(
