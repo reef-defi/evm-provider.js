@@ -6,6 +6,7 @@ import {
   bufferToU8a,
   hexToBn,
   hexToString,
+  hexToU8a,
   isBuffer,
   isHex,
   isU8a,
@@ -13,7 +14,7 @@ import {
   u8aToHex
 } from '@polkadot/util';
 import BN from 'bn.js';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { toUtf8Bytes } from '@ethersproject/strings';
 
 export const U32MAX = BigNumber.from('0xffffffff');
@@ -134,4 +135,40 @@ export function dataToString(bytes: BytesLike): string {
   }
 
   return bytes as string;
+}
+
+export function isSubstrateAddress(address: string): boolean {
+  if (!address) {
+    return false;
+  }
+  try {
+    encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address));
+  } catch (error) {
+    return false;
+  }
+  return true;
+}
+
+// returns evm address
+export async function resolveEvmAddress(
+  addressOrName: string | Promise<string>
+): Promise<string> {
+  const resolved = await addressOrName;
+  if (resolved.length === 42) {
+    return resolved;
+  }
+  const result = await this.api.query.evmAccounts.evmAddresses(resolved);
+  return result.toString();
+}
+
+// returns Reef native address
+export async function resolveAddress(
+  addressOrName: string | Promise<string>
+): Promise<string> {
+  const resolved = await addressOrName;
+  if (isSubstrateAddress(resolved)) {
+    return resolved;
+  }
+  const result = await this.api.query.evmAccounts.accounts(resolved);
+  return result.toString();
 }
