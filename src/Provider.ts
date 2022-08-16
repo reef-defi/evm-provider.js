@@ -130,7 +130,7 @@ export class Provider implements AbstractProvider {
   ): Promise<BigNumber> {
     await this.resolveApi;
 
-    let address = await resolveAddress(addressOrName);
+    let address = await resolveAddress(this, addressOrName);
 
     if (!address) {
       address = await this._toAddress(addressOrName);
@@ -159,7 +159,7 @@ export class Provider implements AbstractProvider {
 
     const resolvedBlockTag = await blockTag;
 
-    const address = await resolveEvmAddress(addressOrName);
+    const address = await resolveEvmAddress(this, addressOrName);
 
     let account: Option<EvmAccountInfo>;
 
@@ -198,7 +198,7 @@ export class Provider implements AbstractProvider {
     await this.resolveApi;
 
     const { address, blockHash } = await resolveProperties({
-      address: resolveEvmAddress(addressOrName),
+      address: resolveEvmAddress(this, addressOrName),
       blockHash: this._getBlockTag(blockTag)
     });
 
@@ -267,12 +267,12 @@ export class Provider implements AbstractProvider {
     // pending tag
     const resolvedBlockTag = await blockTag;
     if (resolvedBlockTag === 'pending') {
-      const address = await resolveEvmAddress(addressOrName);
+      const address = await resolveEvmAddress(this, addressOrName);
       return this.api.query.evm.accounts<Option<EvmAccountInfo>>(address);
     }
 
     const { address, blockHash } = await resolveProperties({
-      address: resolveEvmAddress(addressOrName),
+      address: resolveEvmAddress(this, addressOrName),
       blockHash: this._getBlockTag(blockTag)
     });
 
@@ -315,7 +315,7 @@ export class Provider implements AbstractProvider {
   ): Promise<string> {
     await this.resolveApi;
 
-    const address = await resolveEvmAddress(addressOrName);
+    const address = await resolveEvmAddress(this, addressOrName);
     const blockHash = await this._resolveBlockHash(blockTag);
 
     const code = blockHash
