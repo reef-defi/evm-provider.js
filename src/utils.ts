@@ -16,6 +16,7 @@ import {
 import BN from 'bn.js';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { toUtf8Bytes } from '@ethersproject/strings';
+import { Provider } from './Provider';
 
 export const U32MAX = BigNumber.from('0xffffffff');
 export const U64MAX = BigNumber.from('0xffffffffffffffff');
@@ -151,24 +152,26 @@ export function isSubstrateAddress(address: string): boolean {
 
 // returns evm address
 export async function resolveEvmAddress(
+  provider: Provider,
   addressOrName: string | Promise<string>
 ): Promise<string> {
   const resolved = await addressOrName;
   if (resolved.length === 42) {
     return resolved;
   }
-  const result = await this.api.query.evmAccounts.evmAddresses(resolved);
+  const result = await provider.api.query.evmAccounts.evmAddresses(resolved);
   return result.toString();
 }
 
 // returns Reef native address
 export async function resolveAddress(
+  provider: Provider,
   addressOrName: string | Promise<string>
 ): Promise<string> {
   const resolved = await addressOrName;
   if (isSubstrateAddress(resolved)) {
     return resolved;
   }
-  const result = await this.api.query.evmAccounts.accounts(resolved);
+  const result = await provider.api.query.evmAccounts.accounts(resolved);
   return result.toString();
 }
