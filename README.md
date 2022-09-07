@@ -215,6 +215,17 @@ import { MAX_GAS_LIMIT, MAX_STORAGE_LIMIT } from "@reef-defi/evm-provider";
 ```
 which default to `U64MAX` and `U32MAX` respectively.
 
+## Which API can I use to query by transaction hash?
+There is no such API. Substrate does not expose a "query-by-tx-hash" RPC, nor are transactions indexed by hash on the Substrate node.
+The reason for this is that transaction hashes are non-unique across the chain, although they will generally be unique inside a block.
+
+Please use [GraphQL](https://docs.reef.finance/docs/developers/reefscan/#the-graph) for this purpose.
+
+## How to query EVM events and logs?
+
+See above.
+
+
 ## Versions
 - versions 1.\*.\* work from Reef v8 chain onwards
   - no longer requires `resolutions` with `ethers@5.0.9`
