@@ -17,9 +17,11 @@ import BN from 'bn.js';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { Provider } from './Provider';
+import { Signer } from './Signer';
 
 export const U32MAX = BigNumber.from('0xffffffff');
 export const U64MAX = BigNumber.from('0xffffffffffffffff');
+export const MAINNET_GENESIS_HASH = '0x7834781d38e4798d548e34ec947d19deea29df148a7bf32484b7b24dacf8d4b7';
 
 export function createClaimEvmSignature(substrateAddress: string): Bytes {
   const publicKeySubstrate = decodeAddress(substrateAddress);
@@ -150,12 +152,17 @@ export function isSubstrateAddress(address: string): boolean {
   return true;
 }
 
+export function isMainnet(providerOrSigner: Provider| Signer){
+  const provider = (providerOrSigner as Signer).provider ? (providerOrSigner as Signer).provider : (providerOrSigner as Provider);
+  return provider?.api?.genesisHash.toString() === MAINNET_GENESIS_HASH;
+}
+
 // returns evm address
 export async function resolveEvmAddress(
   provider: Provider,
-  addressOrName: string | Promise<string>
+  nativeAddressOrName: string | Promise<string>
 ): Promise<string> {
-  const resolved = await addressOrName;
+  const resolved = await nativeAddressOrName;
   if (resolved.length === 42) {
     return resolved;
   }
@@ -166,9 +173,9 @@ export async function resolveEvmAddress(
 // returns Reef native address
 export async function resolveAddress(
   provider: Provider,
-  addressOrName: string | Promise<string>
+  evmAddressOrName: string | Promise<string>
 ): Promise<string> {
-  const resolved = await addressOrName;
+  const resolved = await evmAddressOrName;
   if (isSubstrateAddress(resolved)) {
     return resolved;
   }
