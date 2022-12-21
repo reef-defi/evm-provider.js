@@ -21,7 +21,8 @@ import { Signer } from './Signer';
 
 export const U32MAX = BigNumber.from('0xffffffff');
 export const U64MAX = BigNumber.from('0xffffffffffffffff');
-export const MAINNET_GENESIS_HASH = '0x7834781d38e4798d548e34ec947d19deea29df148a7bf32484b7b24dacf8d4b7';
+export const MAINNET_GENESIS_HASH =
+  '0x7834781d38e4798d548e34ec947d19deea29df148a7bf32484b7b24dacf8d4b7';
 
 export function createClaimEvmSignature(substrateAddress: string): Bytes {
   const publicKeySubstrate = decodeAddress(substrateAddress);
@@ -152,8 +153,10 @@ export function isSubstrateAddress(address: string): boolean {
   return true;
 }
 
-export function isMainnet(providerOrSigner: Provider| Signer){
-  const provider = (providerOrSigner as Signer).provider ? (providerOrSigner as Signer).provider : (providerOrSigner as Provider);
+export function isMainnet(providerOrSigner: Provider | Signer): boolean {
+  const provider = (providerOrSigner as Signer).provider
+    ? (providerOrSigner as Signer).provider
+    : (providerOrSigner as Provider);
   return provider?.api?.genesisHash.toString() === MAINNET_GENESIS_HASH;
 }
 
