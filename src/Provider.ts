@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { options } from '@reef-defi/api';
 import { EvmAccountInfo, EvmContractInfo } from '@reef-defi/types/interfaces';
 import type {
   Block,
@@ -20,10 +19,10 @@ import { Deferrable, resolveProperties } from '@ethersproject/properties';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Logger } from '@ethersproject/logger';
 import type { Network } from '@ethersproject/networks';
-import Scanner from '@open-web3/scanner';
+// import Scanner from '@open-web3/scanner';
 import { ApiPromise } from '@polkadot/api';
 import { ApiOptions } from '@polkadot/api/types';
-import type { WsProvider } from '@polkadot/rpc-provider';
+// import type { WsProvider } from '@polkadot/rpc-provider';
 import { Option } from '@polkadot/types';
 import {
   hexToU8a,
@@ -37,6 +36,7 @@ import { encodeAddress } from '@polkadot/util-crypto';
 import type BN from 'bn.js';
 import { AbstractDataProvider } from './DataProvider';
 import { resolveAddress, resolveEvmAddress, toBN } from './utils';
+// import {types, typesAlias, typesBundle} from "@reef-defi/types";
 
 const logger = new Logger('evm-provider');
 export class Provider implements AbstractProvider {
@@ -44,7 +44,7 @@ export class Provider implements AbstractProvider {
   readonly resolveApi: Promise<ApiPromise>;
   readonly _isProvider: boolean;
   readonly dataProvider?: AbstractDataProvider;
-  readonly scanner: Scanner;
+  // readonly scanner: Scanner;
 
   /**
    *
@@ -52,22 +52,22 @@ export class Provider implements AbstractProvider {
    * @param dataProvider
    */
   constructor(_apiOptions: ApiOptions, dataProvider?: AbstractDataProvider) {
-    const apiOptions = options(_apiOptions);
+    // const apiOptions = options(_apiOptions);
 
-    this.api = new ApiPromise(apiOptions);
+    this.api = new ApiPromise(_apiOptions);
 
     this.resolveApi = this.api.isReady;
     this._isProvider = true;
 
     this.dataProvider = dataProvider;
-    this.scanner = new Scanner({
-      wsProvider: apiOptions.provider as WsProvider,
-      types: apiOptions.types,
-      typesAlias: apiOptions.typesAlias,
-      typesSpec: apiOptions.typesSpec,
-      typesChain: apiOptions.typesChain,
-      typesBundle: apiOptions.typesBundle
-    });
+    // this.scanner = new Scanner({
+    //   wsProvider: _apiOptions.provider as WsProvider,
+    //   types:types,
+    //   typesAlias: typesAlias,
+    //   //typesSpec: typesSpec,
+    //   //typesChain: typesChain,
+    //   typesBundle: typesBundle
+    // });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
@@ -533,7 +533,7 @@ export class Provider implements AbstractProvider {
     return this.off(eventName, listener);
   }
 
-  async _resolveTransactionReceipt(
+  /*async _resolveTransactionReceipt(
     transactionHash: string,
     blockHash: string,
     from: string
@@ -625,7 +625,7 @@ export class Provider implements AbstractProvider {
       effectiveGasPrice: BigNumber.from('1'),
       type: 0
     };
-  }
+  }*/
 
   async _resolveBlockHash(
     blockTag?: BlockTag | Promise<BlockTag>
