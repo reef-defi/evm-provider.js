@@ -47,6 +47,6 @@
     "ts-node": "~10.2.0",
     "typescript": "~4.4.3"
   },
-  "packageManager": "yarn@3.0.1",
+  "packageManager": "yarn@3.5.1",
   "stableVersion": "1.0.3"
 }
