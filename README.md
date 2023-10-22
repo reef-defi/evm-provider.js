@@ -1,5 +1,7 @@
 # @reef-defi/evm-provider.js
 
+# Moved to https://github.com/reef-chain/evm-provider
+
 `evm-provider.js` implements a web3 provider which can interact with the [Reef chain EVM](https://github.com/reef-defi/reef-chain).
 
 If you only care about developing Solidity contracts on the Reef chain, `@reef-defi/evm-provider.js` is used in our [Hardhat Reef environment](https://github.com/reef-defi/hardhat-reef). The environment simplifies and abstracts all the low-level intricacies, so you can only focus on the Solidity part. See [hardhat-reef-examples repo](https://github.com/reef-defi/hardhat-reef-examples/blob/master/scripts/flipper/deploy.js) for more examples.
